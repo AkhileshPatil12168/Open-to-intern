@@ -14,50 +14,70 @@ const createCollege = async function (req, res) {
         let data = req.body
 
         //Checking the data in req body is present or not
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please provide some data." })
+        if (Object.keys(data).length == 0)
+            return res.status(400).send({ status: false, message: "Please provide some data." })
+
         let { name, fullName, logoLink } = data
 
-        const collageData= await collegeModel.find()
-        
-        //Validation for name
-        if (!name) return res.status(400).send({ status: false, message: "Please provide name." })
-        if (!isString(name)) return res.status(400).send({ status: false, message: "Name must be in string." })
-        data.name=name.trim()
-        if (!isNotEmpty(data.name)) return res.status(400).send({ status: false, message: "Please provide some data in name." })
-        if (!isWrong(data.name)) return res.status(400).send({ status: false, message: "Please provide valid name" })
+
+        //Validating name
+        if (!name)
+            return res.status(400).send({ status: false, message: "Please provide name." })
+        if (!isString(name))
+            return res.status(400).send({ status: false, message: "Name must be in string." })
+
+        data.name = name.trim()
+
+        if (!isNotEmpty(data.name))
+            return res.status(400).send({ status: false, message: "Please provide some data in name." })
+        if (!isWrong(data.name))
+            return res.status(400).send({ status: false, message: "Please provide valid name" })
+
         data.name = data.name.toLowerCase()
 
         //Checking the unique name
-        for (let i = 0; i < collageData.length; i++) {
-            if (collageData[i].name  == data.name ) {
-                return res.status(409).send({ status: false, msg: "college name already Exists" });
-            }
-        }
+        const collageData = await collegeModel.findOne({ name: data.name })
+        if (collageData)
+            return res.status(409).send({ status: false, msg: "college name already Exists" });
 
-        //Validation for fullName
-        if (!fullName) return res.status(400).send({ status: false, message: "Please provide fullName." })
-        if (!isString(fullName)) return res.status(400).send({ status: false, message: "fullName must be in string." })
-        data.fullName=fullName.trim()
-        if (!isNotEmpty(data.fullName)) return res.status(400).send({ status: false, message: "Please provide some data in fullName." })
-        if (!isValidCollege(data.fullName)) return res.status(400).send({ status: false, message: "Please provide valid fullName." })
-        
+
+        //Validating fullName
+        if (!fullName)
+            return res.status(400).send({ status: false, message: "Please provide fullName." })
+        if (!isString(fullName))
+            return res.status(400).send({ status: false, message: "fullName must be in string." })
+
+        data.fullName = fullName.trim()
+
+        if (!isNotEmpty(data.fullName))
+            return res.status(400).send({ status: false, message: "Please provide some data in fullName." })
+        if (!isValidCollege(data.fullName))
+            return res.status(400).send({ status: false, message: "Please provide valid fullName." })
+
         data.fullName = data.fullName.toLowerCase()
 
-        //Validation for logoLink
-        if (!logoLink) return res.status(400).send({ status: false, message: "Please provide logo link." })
-        if (!isString(logoLink)) return res.status(400).send({ status: false, message: "logo link must be in string." })
-        data.logoLink=logoLink.trim()
-        if (!isNotEmpty(data.logoLink)) return res.status(400).send({ status: false, message: "Please provide some data in logo link." })
-        if (!isValidLink(data.logoLink)) return res.status(400).send({ status: false, message: "Please provide a correct link" })
-        
+
+        //Validating logoLink
+        if (!logoLink)
+            return res.status(400).send({ status: false, message: "Please provide logo link." })
+        if (!isString(logoLink))
+            return res.status(400).send({ status: false, message: "logo link must be in string." })
+
+        data.logoLink = logoLink.trim()
+
+        if (!isNotEmpty(data.logoLink))
+            return res.status(400).send({ status: false, message: "Please provide some data in logo link." })
+        if (!isValidLink(data.logoLink))
+            return res.status(400).send({ status: false, message: "Please provide a correct link" })
+
 
         //Creating data of College
         let createdData = await collegeModel.create(data)
 
-        res.status(201).send({status: true, data: createdData  })
+        return res.status(201).send({ status: true, data: createdData })
 
     } catch (err) {
-        res.status(500).send({  status: false ,msg: err.message})
+        return res.status(500).send({ status: false, msg: err.message })
 
     }
 }
@@ -88,7 +108,7 @@ const getCollegeDetails = async function (req, res) {
         res.status(200).send({ status: true, data: { name: collegeData.name, fullName: collegeData.fullName, logoLink: collegeData.logoLink, interns: internData } })
 
     } catch (err) {
-        res.status(500).send({  status: false , msg: err.message})
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 
